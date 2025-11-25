@@ -1,16 +1,236 @@
-
-body { font-family:Arial; text-align:center; padding:20px; }
-.camera-wrap {
-  width: 70vw;
-  max-width: 500px;
-  margin: 20px auto;
-  aspect-ratio: 336 / 235; /* 프레임 비율 그대로 */
-  overflow: hidden;
-  position: relative;
-  background:#000;
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #e0f2f7; /*배경색 */
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    color: #333;
+    padding: 20px;
+    box-sizing: border-box;
 }
-#cam {
-  width:100%;
-  height:100%;
-  object-fit:cover; /* 프레임 비율에 딱 맞춰 보이게 */
+
+.photo-booth {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    text-align: center;
+    max-width: 900px;
+    width: 100%;
+}
+
+h1 {
+    color: #2c3e50;
+    margin-bottom: 25px;
+    font-size: 2.2em;
+}
+
+h2 {
+    color: #34495e;
+    margin-top: 30px;
+    margin-bottom: 15px;
+    font-size: 1.5em;
+}
+
+.camera-stage {
+    position: relative;
+    width: 640px; /* 카메라 영상 및 프레임 크기 */
+    height: 480px;
+    margin: 0 auto 25px;
+    border: 3px solid #6c5ce7; /* 보라색 테두리 */
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #000; /* 영상 로딩 전 검은색 배경 */
+}
+
+#webcamVideo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1); /* 거울 모드 */
+    display: none; /* 초기에는 숨김 */
+}
+
+#frameOverlay { /* 이전에 사용하던 오버레이는 이제 사용하지 않음 */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+    background-color: transparent;
+    display: none;
+}
+
+.controls button {
+    padding: 12px 25px;
+    margin: 8px;
+    font-size: 1.1em;
+    cursor: pointer;
+    background-color: #6c5ce7; /* 보라색 버튼 */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.controls button:hover {
+    background-color: #5a4bcf;
+}
+
+#captureCount {
+    font-weight: bold;
+    color: #ffda00; /* 노란색 강조 */
+}
+
+/* 갤러리 */
+.gallery-container {
+    margin-top: 30px;
+    border-top: 1px solid #eee;
+    padding-top: 20px;
+}
+
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 4열 그리드 */
+    gap: 15px;
+    max-width: 800px; /* 갤러리 최대 너비 */
+    margin: 0 auto;
+}
+
+.gallery-item {
+    position: relative;
+    width: 100%;
+    padding-bottom: 75%; /* 4:3 비율 (가로/세로 비율 조절 가능) */
+    background-color: #f0f0f0;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.gallery-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.gallery-item img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.gallery-item.selected {
+    border: 4px solid #00c4e7; /* 선택된 사진 테두리 */
+    box-shadow: 0 0 15px rgba(0, 196, 231, 0.5); /* 선택된 사진 그림자 */
+}
+
+.gallery-item::after {
+    content: '✔️'; /* 체크마크 */
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    font-size: 1.5em;
+    color: #00c4e7;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    padding: 2px;
+    display: none;
+}
+
+.gallery-item.selected::after {
+    display: block;
+}
+
+/* 프레임 선택 섹션 스타일 */
+.frame-selection-container {
+    margin-top: 30px;
+    border-top: 1px solid #eee;
+    padding-top: 20px;
+}
+
+.frame-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); /* 반응형 템플릿 */
+    gap: 15px;
+    max-width: 800px;
+    margin: 0 auto 20px;
+    padding: 10px;
+    background-color: #f8f8f8;
+    border-radius: 10px;
+    box-shadow: inset 0 0 8px rgba(0,0,0,0.05);
+}
+
+.frame-item {
+    position: relative;
+    width: 100%;
+    padding-bottom: 260%; /* 프레임 비율에 맞게 조절 (410:1080 대략 1:2.63) */
+    background-color: #fff;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.frame-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.frame-item img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* 프레임 이미지는 잘리지 않고 다 보이게 */
+    border-radius: 8px;
+}
+
+.frame-item.selected {
+    border: 4px solid #f39c12; /* 선택된 프레임 테두리 (주황색) */
+    box-shadow: 0 0 15px rgba(243, 156, 18, 0.5);
+    transform: scale(1.03); /* 선택 시 살짝 커지게 */
+}
+
+
+/* 최종 결과 */
+.final-result {
+    margin-top: 40px;
+    border-top: 1px solid #eee;
+    padding-top: 30px;
+}
+
+#finalFourCutCanvas {
+    max-width: 100%;
+    height: auto;
+    border: 2px solid #6c5ce7;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 25px;
+}
+
+@media (max-width: 768px) {
+    .camera-stage {
+        width: 100%;
+        height: auto;
+        padding-bottom: 75%; /* 4:3 비율 유지 */
+    }
+    .gallery-grid {
+        grid-template-columns: repeat(2, 1fr); /* 모바일에서는 2열 */
+    }
+    .frame-grid {
+        grid-template-columns: repeat(3, 1fr); /* 모바일에서는 3열 */
+    }
 }
