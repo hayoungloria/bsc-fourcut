@@ -157,49 +157,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const tempCtx = tempCanvas.getContext('2d');
-
-// ==== 프레임 비율(336:235)에 맞춰 중앙 크롭하여 캡처 ====
-const FRAME_W = 336;
-const FRAME_H = 235;
-const FRAME_ASPECT = FRAME_W / FRAME_H;
-
-// 현재 캔버스 크기 (기존 코드 유지)
-const canvasW = tempCanvas.width;
-const canvasH = tempCanvas.height;
-const canvasAspect = canvasW / canvasH;
-
-// 원본 카메라 영상 정보
-const videoW = webcamVideo.videoWidth;
-const videoH = webcamVideo.videoHeight;
-const videoAspect = videoW / videoH;
-
-tempCtx.save();
-tempCtx.scale(-1, 1);
-tempCtx.translate(-canvasW, 0);
-
-if (videoAspect > canvasAspect) {
-    // 카메라가 가로로 더 넓은 경우 → 좌우를 잘라냄
-    const newW = videoH * canvasAspect;
-    const sx = (videoW - newW) / 2;
-
-    tempCtx.drawImage(
-        webcamVideo,
-        sx, 0, newW, videoH,
-        0, 0, canvasW, canvasH
-    );
-} else {
-    // 카메라가 세로로 더 긴 경우 → 위아래를 잘라냄
-    const newH = videoW / canvasAspect;
-    const sy = (videoH - newH) / 2;
-
-    tempCtx.drawImage(
-        webcamVideo,
-        0, sy, videoW, newH,
-        0, 0, canvasW, canvasH
-    );
-}
-
-tempCtx.restore();
+        tempCtx.save();
+        tempCtx.scale(-1, 1);
+        tempCtx.translate(-tempCanvas.width, 0);
+        tempCtx.drawImage(webcamVideo, 0, 0, tempCanvas.width, tempCanvas.height);
+        tempCtx.restore();
         const photoDataUrl = tempCanvas.toDataURL('image/jpeg', 0.9);
 
         allCapturedPhotos.push(photoDataUrl);
@@ -483,3 +445,13 @@ tempCtx.restore();
         }
     });
 });
+
+// PWA를 위한 Service Worker 등록
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker
+            .register('service-worker.js')
+            .then(() => console.log('Service Worker 등록 성공'))
+            .catch(err => console.error('Service Worker 등록 실패:', err));
+    });
+}
