@@ -1,15 +1,49 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>📸 BSC 네컷사진 📸</title>
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#6c5ce7">
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📸 BSC네컷 📸</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#6c5ce7">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="app">네컷 사진 앱 템플릿입니다. script.js를 채워서 완성하세요.</div>
-  <script src="script.js"></script>
+    <div class="photo-booth">
+        <h1>📸 BSC 네컷사진 📸</h1>
+
+        <div class="camera-stage">
+            <video id="webcamVideo" autoplay playsinline></video>
+            <canvas id="tempCanvas" style="display: none;"></canvas>
+        </div>
+
+        <div class="controls">
+            <button id="startButton">카메라 시작</button>
+            <button id="captureButton" style="display: none;">사진 찍기 (<span id="captureCount">0</span>/8)</button>
+            <button id="selectPhotosButton" style="display: none;">사진 선택 완료</button>
+            <button id="resetButton" style="display: none;">다시 시작</button>
+        </div>
+
+        <div class="gallery-container" style="display: none;">
+            <h2>찍은 사진들 (8개 중 4개 선택)</h2>
+            <div id="photoGallery" class="gallery-grid">
+            </div>
+        </div>
+
+        <div class="frame-selection-container" style="display: none;">
+            <h2>마음에 드는 프레임을 골라봐!</h2>
+            <div id="frameGallery" class="frame-grid">
+                </div>
+            <button id="composeFinalPhotoButton" style="display: none;">이 프레임으로 완성하기</button>
+        </div>
+        <div class="final-result" style="display: none;">
+            <h2>완성된 네컷 사진</h2>
+            <canvas id="finalFourCutCanvas"></canvas>
+            <button id="downloadButton">사진 저장</button>
+            <button id="shareButton">공유하기</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
